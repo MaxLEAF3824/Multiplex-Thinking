@@ -28,17 +28,17 @@ The codebase is built upon several high-quality open-source projects. We sincere
 
 ### Environment Setup
 
-We strongly recommend using **Docker** to ensure a consistent and reproducible environment.
-
-For general system configuration, please refer to the official documentation:
-
-- https://verl.readthedocs.io/en/latest/workers/sglang_worker.html
+We recommend using Docker to ensure a consistent and reproducible environment. If you prefer Conda, we also provide an environment specification in `conda_env.yaml`.
 
 ### Base Docker Image
 
 We suggest starting from the official **verl SGLang worker** Docker image:
 
 - https://github.com/volcengine/verl/blob/325cbc770bfe32ef022f1cd67feab1a23bba9e42/docker/verl0.5-cu126-torch2.7-fa2.7.4/Dockerfile.app.sglang0.4.9.post6.mcore0.13
+
+For general system configuration, please refer to the official documentation of verl:
+
+- https://verl.readthedocs.io/en/latest/workers/sglang_worker.html
 
 ### Dependencies
 
@@ -58,16 +58,16 @@ bash setup.sh
     * `pip install sglang-0.4.9.post6`
     * `pip install transformers-4.54.0`
 
-### Training and evaluation
+## Training and evaluation
 
 Train and evaluate by running 
 `bash scripts/train.sh` or `bash scripts/eval.sh`
 
-### Implementation Credits
+## Implementation Credits
 This codebase is built upon and inspired by the exceptional work from the following projects:
 * **Training & RL Framework**: [verl](https://github.com/volcengine/verl) & [DeepScaleR](https://github.com/agentica-project/DeepScaleR)
 * **Inference Engine**: [sglang](https://github.com/sgl-project/sglang)
-* **Conceptual Foundation**: [Soft Thinking](https://github.com/eric-ai-lab/Soft-Thinking)
+* **Code Inspiration & Adaptations**: [Soft Thinking](https://github.com/eric-ai-lab/Soft-Thinking)
 
 
 ## 📁 Checkpoints
