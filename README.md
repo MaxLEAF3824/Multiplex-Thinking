@@ -1,7 +1,6 @@
 <div align="center">
 
-# Multiplex Thinking
-## Reasoning via Token-wise Branch-and-Merge
+# Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge
 
 </div>
 
@@ -58,10 +57,8 @@ bash setup.sh
 
 ### Training and evaluation
 
-Use your own wandb and hf token and running 
-`export HF_TOKEN= your_hf_token
-export WANDB_API_KEY=your_wandb_api_key
-bash scripts/train.sh or bash scripts/eval.sh`
+Train and evaluate by running 
+`bash scripts/train.sh` or `bash scripts/eval.sh`
 
 ### Implementation Credits
 This codebase is built upon and inspired by the exceptional work from the following projects:
