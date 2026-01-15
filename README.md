@@ -105,6 +105,14 @@ This codebase is built upon and inspired by the exceptional work from the follow
 Model weights are available on Hugging Face:
 👉 [**Multiplex-Thinking-HF-Checkpoints**](https://huggingface.co/Multiplex-Thinking)
 
-<!-- # ✍️ Citation -->
-<!-- If you find this work useful for your research, please cite our paper: -->
+# ✍️ Citation 
+If you find this work useful for your research, please cite our paper as:
+```
+@article{tang2026multiplexthinking,
+  title   = {Multiplex Thinking: Reasoning via Token-wise Branch-and-Merge},
+  author  = {Tang, Yao and Dong, Li and Hao, Yaru and Dong, Qingxiu and Wei, Furu and Gu, Jiatao},
+  journal = {arXiv preprint arXiv:2601.08808},
+  year    = {2026}
+}
+```
 
