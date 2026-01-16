@@ -12,7 +12,7 @@
 [![Website](https://img.shields.io/badge/Website-Online-2ea44f)](https://gmlr-penn.github.io/Multiplex-Thinking/)
 
 <div align="center">
-  <img src="figs/teaser.png" alt="teaser" width="600" />
+  <img src="figs/teaser.png" alt="teaser" width="750" />
 </div>
 
 <!-- [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)  -->
