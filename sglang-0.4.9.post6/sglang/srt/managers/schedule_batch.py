@@ -817,7 +817,7 @@ class Req:
                 pass
 
             if self.sampling_params.think_end_str_id == self.output_ids[-1]:
-                self.sampling_params.soft_thinking_mode = False
+                self.sampling_params.soft_thinking_mode = torch.tensor(False, dtype=torch.bool, device='cuda') 
                 self.topk_prob[1:].fill_(0.)
                 self.topk_idx[1:].fill_(0)
                 self.topk_prob[0] = 1.0
