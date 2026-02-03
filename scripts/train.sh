@@ -445,7 +445,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.free_cache_engine=True \
     actor_rollout_ref.rollout.enable_sleep_hack=True \
     actor_rollout_ref.rollout.enable_prefix_caching=False \
-    actor_rollout_ref.rollout.max_num_seqs=512 \
+    actor_rollout_ref.rollout.max_num_seqs=4096 \
     reward_model.enable=False \
     trainer.default_local_dir=./${WANDB_PROJECT}/${EXP_NAME}
 
