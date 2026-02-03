@@ -316,7 +316,7 @@ fi
 # export NCCL_TIMEOUT=36000
 # export NCCL_SOCKET_IFNAME=ibp24s0
 # export NCCL_IB_HCA=mlx5_4
-# export NCCL_CUMEM_HOST_ENABLE=0
+export NCCL_CUMEM_HOST_ENABLE=0
 
 
 ############## ray_node_setup.sh ##############
@@ -328,7 +328,7 @@ echo $OMPI_COMM_WORLD_RANK
 # Force GPU cache cleanup (helps reduce OOM flakiness between runs)
 # export CUDA_LAUNCH_BLOCKING=1
 # Avoid multi-process GPU contention
-export CUDA_DEVICE_ORDER=PCI_BUS_ID
+# export CUDA_DEVICE_ORDER=PCI_BUS_ID
 
 
 

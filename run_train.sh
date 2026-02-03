@@ -7,7 +7,7 @@ bash scripts/train.sh \
   --max_token_len_per_gpu 30720 \
   --loss_mode multiplex_thinking \
   --multiplex_width 3 \
-  --n_gpus_per_node 1 \
+  --n_gpus_per_node 4 \
   --max_response_length 8192 \
   --val_rollout_n 4 \
   --val_dataset math \
