@@ -1,5 +1,5 @@
 # more pip dependecy
-conda init && conda activate multiplex-thinking
+conda init && eval "$(conda shell.bash hook)" && conda activate multiplex-thinking
 pip install uv
 uv pip install debugpy \
 pybase64 \
