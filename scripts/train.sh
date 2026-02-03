@@ -349,13 +349,17 @@ echo $OMPI_COMM_WORLD_RANK
 # fi
 
 
+# Generate a random integer between 1 and 100000
+RANDOM_INT=$((RANDOM % 100000 + 1))
+echo "Random integer: $RANDOM_INT"
+EXP_NAME="${EXP_NAME}-${RANDOM_INT}"
 
 # export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files=deepscaler/hdfs_data/train.parquet \
     data.val_files=deepscaler/hdfs_data/$VAL_DATASET.parquet \
-    data.train_batch_size=$TRAIN_BATCH_SIZE \
+    data.train_batch_size=32 \
     actor_rollout_ref.rollout.val_kwargs.n=$VAL_ROLLOUT_N \
     data.val_batch_size=$VAL_BATCH_SIZE \
     data.max_prompt_length=1024 \
@@ -367,7 +371,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.rollout.enable_chunked_prefill=False \
-    actor_rollout_ref.actor.ppo_mini_batch_size=$TRAIN_BATCH_SIZE \
+    actor_rollout_ref.actor.ppo_mini_batch_size=32 \
     actor_rollout_ref.actor.use_dynamic_bsz=True \
     actor_rollout_ref.actor.ppo_max_token_len_per_gpu=$MAX_TOKEN_LEN_PER_GPU \
     actor_rollout_ref.actor.policy_loss.loss_mode=$LOSS_MODE \
@@ -431,7 +435,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.logger=['console','wandb'] \
     trainer.project_name=${WANDB_PROJECT} \
     trainer.experiment_name=${EXP_NAME} \
-    trainer.val_before_train=$VAL_BEFORE_TRAIN \
+    trainer.val_before_train=False \
     trainer.n_gpus_per_node=$N_GPUS_PER_NODE \
     trainer.nnodes=1 \
     trainer.save_freq=$SAVE_FREQ \
