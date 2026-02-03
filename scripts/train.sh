@@ -303,64 +303,56 @@ if [ -z "$ENABLE_UNWEIGHTING" ]; then
     ENABLE_UNWEIGHTING=False
 fi
 
-# export TOKENIZERS_PARALLELISM=true
+export TOKENIZERS_PARALLELISM=true
 export WANDB_API_KEY="${WANDB_API_KEY:-}"
-# export HF_TOKEN="${HF_TOKEN:-}"
-# if [ -z "$HF_TOKEN" ]; then
-#     echo "[WARN] HF_TOKEN is empty. Set it via env var if you need to access gated/private HuggingFace models."
-# fi
+export HF_TOKEN="${HF_TOKEN:-}"
 if [ -z "$WANDB_API_KEY" ]; then
     echo "[WARN] WANDB_API_KEY is empty. Set it via env var if you want wandb logging."
 fi
-
-# export NCCL_TIMEOUT=36000
-# export NCCL_SOCKET_IFNAME=ibp24s0
-# export NCCL_IB_HCA=mlx5_4
-export NCCL_CUMEM_HOST_ENABLE=0
-
-
+if [ -z "$HF_TOKEN" ]; then
+    echo "[WARN] HF_TOKEN is empty. Set it via env var if you need to access gated/private HuggingFace models."
+fi
+export NCCL_TIMEOUT=36000
+export NCCL_SOCKET_IFNAME=ibp24s0
+export NCCL_IB_HCA=mlx5_4
 ############## ray_node_setup.sh ##############
 echo ${MASTER_ADDR}
 echo $OMPI_COMM_WORLD_RANK
 
 
-# export NCCL_TIMEOUT=72000
+export NCCL_TIMEOUT=72000
 # Force GPU cache cleanup (helps reduce OOM flakiness between runs)
-# export CUDA_LAUNCH_BLOCKING=1
+export CUDA_LAUNCH_BLOCKING=1
 # Avoid multi-process GPU contention
-# export CUDA_DEVICE_ORDER=PCI_BUS_ID
+export CUDA_DEVICE_ORDER=PCI_BUS_ID
 
 
 
 
-# unset RAY_EXPERIMENTAL_NOSET_ROCR_VISIBLE_DEVICES
+unset RAY_EXPERIMENTAL_NOSET_ROCR_VISIBLE_DEVICES
 
 # Provide default values for local execution if not set by a job scheduler
-# export MASTER_ADDR=${MASTER_ADDR:-127.0.0.1}
-# export OMPI_COMM_WORLD_RANK=${OMPI_COMM_WORLD_RANK:-0}
+export MASTER_ADDR=${MASTER_ADDR:-127.0.0.1}
+export OMPI_COMM_WORLD_RANK=${OMPI_COMM_WORLD_RANK:-0}
 
-# # if OMPI_COMM_WORLD_RANK is 0, then start the ray cluster, else print the value of MASTER_ADDR
-# if [ "$OMPI_COMM_WORLD_RANK" -eq 0 ]; then
-#     # Start Ray head node
-#     ray start --head --node-ip-address ${MASTER_ADDR} --num-gpus $N_GPUS_PER_NODE
-# else
-#     echo ${MASTER_ADDR}
-#     ray start --address ${MASTER_ADDR}:6379  --num-gpus $N_GPUS_PER_NODE
-# fi
+# if OMPI_COMM_WORLD_RANK is 0, then start the ray cluster, else print the value of MASTER_ADDR
+if [ "$OMPI_COMM_WORLD_RANK" -eq 0 ]; then
+    # Start Ray head node
+    ray start --head --node-ip-address ${MASTER_ADDR} --num-gpus $N_GPUS_PER_NODE
+else
+    echo ${MASTER_ADDR}
+    ray start --address ${MASTER_ADDR}:6379  --num-gpus $N_GPUS_PER_NODE
+fi
 
 
-# Generate a random integer between 1 and 100000
-RANDOM_INT=$((RANDOM % 100000 + 1))
-echo "Random integer: $RANDOM_INT"
-EXP_NAME="${EXP_NAME}-${RANDOM_INT}"
-# data.val_files=deepscaler/hdfs_data/$VAL_DATASET.parquet \
 
-# export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False
+sleep 5
+
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files=deepscaler/hdfs_data/train.parquet \
-    data.val_files=[/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/aime.parquet,/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/amc.parquet,/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/math.parquet] \
-    data.train_batch_size=32 \
+    data.val_files=deepscaler/hdfs_data/$VAL_DATASET.parquet \
+    data.train_batch_size=$TRAIN_BATCH_SIZE \
     actor_rollout_ref.rollout.val_kwargs.n=$VAL_ROLLOUT_N \
     data.val_batch_size=$VAL_BATCH_SIZE \
     data.max_prompt_length=1024 \
@@ -372,7 +364,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.rollout.enable_chunked_prefill=False \
-    actor_rollout_ref.actor.ppo_mini_batch_size=32 \
+    actor_rollout_ref.actor.ppo_mini_batch_size=$TRAIN_BATCH_SIZE \
     actor_rollout_ref.actor.use_dynamic_bsz=True \
     actor_rollout_ref.actor.ppo_max_token_len_per_gpu=$MAX_TOKEN_LEN_PER_GPU \
     actor_rollout_ref.actor.policy_loss.loss_mode=$LOSS_MODE \
@@ -424,25 +416,21 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.entropy_coeff=0.0 \
     actor_rollout_ref.rollout.gpu_memory_utilization=${GPU_MEMORY_UTILIZATION} \
     actor_rollout_ref.rollout.n=8 \
-    actor_rollout_ref.ref.strategy=fsdp2 \
-    actor_rollout_ref.actor.strategy=fsdp2 \
-    critic.strategy=fsdp2 \
-    reward_model.strategy=fsdp2 \
-    +actor_rollout_ref.rollout.shuffle_before_dispatch=False \
-    actor_rollout_ref.ref.fsdp_config.param_offload=False \
+    actor_rollout_ref.ref.fsdp_config.param_offload=True \
     actor_rollout_ref.ref.fsdp_config.optimizer_offload=False \
     algorithm.kl_ctrl.kl_coef=0.0 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
     trainer.project_name=${WANDB_PROJECT} \
     trainer.experiment_name=${EXP_NAME} \
-    trainer.val_before_train=False \
+    trainer.val_before_train=$VAL_BEFORE_TRAIN \
     trainer.n_gpus_per_node=$N_GPUS_PER_NODE \
     trainer.nnodes=1 \
     trainer.save_freq=$SAVE_FREQ \
     trainer.test_freq=$TEST_FREQ \
     trainer.default_hdfs_dir=null \
-    trainer.total_epochs=1 \
+    trainer.total_epochs=30 \
+    trainer.total_training_steps=$TOTAL_TRAINING_STEPS \
     trainer.resume_mode=$RESUME_MODE \
     trainer.resume_from_path=$RESUME_FROM_PATH \
     reward_model.reward_manager=hf_math_verify \
@@ -453,4 +441,3 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.max_num_seqs=512 \
     reward_model.enable=False \
     trainer.default_local_dir=./${WANDB_PROJECT}/${EXP_NAME}
-

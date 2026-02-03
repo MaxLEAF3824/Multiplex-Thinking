@@ -357,13 +357,35 @@ class Qwen3Model(Qwen3PreTrainedModel):
         inputs_embeds: Optional[torch.FloatTensor] = None,
         use_cache: Optional[bool] = None,
         cache_position: Optional[torch.LongTensor] = None,
+        topk_probs: Optional[torch.Tensor] = None,
+        topk_indices: Optional[torch.Tensor] = None,
         **kwargs: Unpack[TransformersKwargs],
     ) -> BaseModelOutputWithPast:
         if (input_ids is None) ^ (inputs_embeds is not None):
-            raise ValueError("You must specify exactly one of input_ids or inputs_embeds")
+            if topk_probs is None or topk_indices is None:
+                raise ValueError("You must specify exactly one of input_ids or inputs_embeds")
 
+            #raise ValueError("You must specify exactly one of input_ids or inputs_embeds")
+
+        # if inputs_embeds is None:
+        #     inputs_embeds = self.embed_tokens(input_ids)
         if inputs_embeds is None:
-            inputs_embeds = self.embed_tokens(input_ids)
+            if topk_probs is None:
+                inputs_embeds = self.embed_tokens(input_ids)
+                # save the tensor as no_soft_embeddings to file
+                #To delete this later
+                # torch.save(inputs_embeds.clone(), "./tensors/no_soft_embeddings.pt")
+                
+            else:
+                assert topk_indices is not None, "topk_indices is required when topk_probs is provided"
+                assert input_ids is None, "input_ids is not allowed when topk_probs is provided"
+                topk_embeddings = self.embed_tokens(topk_indices) # (total_nnz, topk, hidden_size)
+
+                weighted_embeddings = topk_embeddings * topk_probs.unsqueeze(-1) # (total_nnz, topk, hidden_size)
+
+                inputs_embeds = weighted_embeddings.sum(dim=1) # (total_nnz, hidden_size)
+                
+                inputs_embeds = inputs_embeds.unsqueeze(0) 
 
         if use_cache and past_key_values is None:
             past_key_values = DynamicCache()
@@ -446,6 +468,8 @@ class Qwen3ForCausalLM(Qwen3PreTrainedModel, GenerationMixin):
     def forward(
         self,
         input_ids: Optional[torch.LongTensor] = None,
+        topk_probs: Optional[torch.Tensor] = None,
+        topk_indices: Optional[torch.Tensor] = None,
         attention_mask: Optional[torch.Tensor] = None,
         position_ids: Optional[torch.LongTensor] = None,
         past_key_values: Optional[Cache] = None,
@@ -486,6 +510,8 @@ class Qwen3ForCausalLM(Qwen3PreTrainedModel, GenerationMixin):
             inputs_embeds=inputs_embeds,
             use_cache=use_cache,
             cache_position=cache_position,
+            topk_probs=topk_probs,
+            topk_indices=topk_indices,
             **kwargs,
         )
 
