@@ -1,0 +1,14 @@
+bash scripts/train.sh \
+  --model Qwen/Qwen3-1.7B-Base \
+  --wandb_project qwen3-1.7b-mt \
+  --exp_name qwen3-1.7b-mt-1 \
+  --enable_unweighting True \
+  --train_batch_size 256 \
+  --max_token_len_per_gpu 30720 \
+  --loss_mode multiplex_thinking \
+  --multiplex_width 3 \
+  --n_gpus_per_node 1 \
+  --max_response_length 8192 \
+  --val_rollout_n 4 \
+  --val_dataset math \
+  --val_batch_size 1024

@@ -303,51 +303,54 @@ if [ -z "$ENABLE_UNWEIGHTING" ]; then
     ENABLE_UNWEIGHTING=False
 fi
 
-export TOKENIZERS_PARALLELISM=true
+# export TOKENIZERS_PARALLELISM=true
 export WANDB_API_KEY="${WANDB_API_KEY:-}"
-export HF_TOKEN="${HF_TOKEN:-}"
+# export HF_TOKEN="${HF_TOKEN:-}"
+# if [ -z "$HF_TOKEN" ]; then
+#     echo "[WARN] HF_TOKEN is empty. Set it via env var if you need to access gated/private HuggingFace models."
+# fi
 if [ -z "$WANDB_API_KEY" ]; then
     echo "[WARN] WANDB_API_KEY is empty. Set it via env var if you want wandb logging."
 fi
-if [ -z "$HF_TOKEN" ]; then
-    echo "[WARN] HF_TOKEN is empty. Set it via env var if you need to access gated/private HuggingFace models."
-fi
-export NCCL_TIMEOUT=36000
-export NCCL_SOCKET_IFNAME=ibp24s0
-export NCCL_IB_HCA=mlx5_4
+
+# export NCCL_TIMEOUT=36000
+# export NCCL_SOCKET_IFNAME=ibp24s0
+# export NCCL_IB_HCA=mlx5_4
+# export NCCL_CUMEM_HOST_ENABLE=0
+
+
 ############## ray_node_setup.sh ##############
 echo ${MASTER_ADDR}
 echo $OMPI_COMM_WORLD_RANK
 
 
-export NCCL_TIMEOUT=72000
+# export NCCL_TIMEOUT=72000
 # Force GPU cache cleanup (helps reduce OOM flakiness between runs)
-export CUDA_LAUNCH_BLOCKING=1
+# export CUDA_LAUNCH_BLOCKING=1
 # Avoid multi-process GPU contention
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
 
 
 
 
-unset RAY_EXPERIMENTAL_NOSET_ROCR_VISIBLE_DEVICES
+# unset RAY_EXPERIMENTAL_NOSET_ROCR_VISIBLE_DEVICES
 
 # Provide default values for local execution if not set by a job scheduler
-export MASTER_ADDR=${MASTER_ADDR:-127.0.0.1}
-export OMPI_COMM_WORLD_RANK=${OMPI_COMM_WORLD_RANK:-0}
+# export MASTER_ADDR=${MASTER_ADDR:-127.0.0.1}
+# export OMPI_COMM_WORLD_RANK=${OMPI_COMM_WORLD_RANK:-0}
 
-# if OMPI_COMM_WORLD_RANK is 0, then start the ray cluster, else print the value of MASTER_ADDR
-if [ "$OMPI_COMM_WORLD_RANK" -eq 0 ]; then
-    # Start Ray head node
-    ray start --head --node-ip-address ${MASTER_ADDR} --num-gpus $N_GPUS_PER_NODE
-else
-    echo ${MASTER_ADDR}
-    ray start --address ${MASTER_ADDR}:6379  --num-gpus $N_GPUS_PER_NODE
-fi
+# # if OMPI_COMM_WORLD_RANK is 0, then start the ray cluster, else print the value of MASTER_ADDR
+# if [ "$OMPI_COMM_WORLD_RANK" -eq 0 ]; then
+#     # Start Ray head node
+#     ray start --head --node-ip-address ${MASTER_ADDR} --num-gpus $N_GPUS_PER_NODE
+# else
+#     echo ${MASTER_ADDR}
+#     ray start --address ${MASTER_ADDR}:6379  --num-gpus $N_GPUS_PER_NODE
+# fi
 
 
 
-sleep 5
-
+# export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files=deepscaler/hdfs_data/train.parquet \
@@ -416,7 +419,8 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.entropy_coeff=0.0 \
     actor_rollout_ref.rollout.gpu_memory_utilization=${GPU_MEMORY_UTILIZATION} \
     actor_rollout_ref.rollout.n=8 \
-    actor_rollout_ref.ref.fsdp_config.param_offload=True \
+    +actor_rollout_ref.rollout.shuffle_before_dispatch=False \
+    actor_rollout_ref.ref.fsdp_config.param_offload=False \
     actor_rollout_ref.ref.fsdp_config.optimizer_offload=False \
     algorithm.kl_ctrl.kl_coef=0.0 \
     trainer.critic_warmup=0 \
@@ -429,8 +433,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.save_freq=$SAVE_FREQ \
     trainer.test_freq=$TEST_FREQ \
     trainer.default_hdfs_dir=null \
-    trainer.total_epochs=30 \
-    trainer.total_training_steps=$TOTAL_TRAINING_STEPS \
+    trainer.total_epochs=1 \
     trainer.resume_mode=$RESUME_MODE \
     trainer.resume_from_path=$RESUME_FROM_PATH \
     reward_model.reward_manager=hf_math_verify \
