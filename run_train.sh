@@ -28,8 +28,8 @@ echo EXP_NAME: $EXP_NAME
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files=deepscaler/hdfs_data/train.parquet \
-    data.val_files=[/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/aime.parquet,/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/amc.parquet,/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/math.parquet] \
-    data.train_batch_size=512 \
+    data.val_files=[$HOME/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/aime.parquet,$HOME/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/amc.parquet,$HOME/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/math.parquet] \
+    data.train_batch_size=256 \
     data.val_batch_size=512 \
     data.max_prompt_length=1024 \
     data.max_response_length=8192 \
@@ -99,6 +99,9 @@ python3 -m verl.trainer.main_ppo \
     +actor_rollout_ref.rollout.shuffle_before_dispatch=False \
     actor_rollout_ref.ref.fsdp_config.param_offload=False \
     actor_rollout_ref.ref.fsdp_config.optimizer_offload=False \
+    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=4 \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=4 \
+    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=4 \
     algorithm.kl_ctrl.kl_coef=0.0 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
