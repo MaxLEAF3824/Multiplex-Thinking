@@ -29,11 +29,10 @@ python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files=deepscaler/hdfs_data/train.parquet \
     data.val_files=[/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/aime.parquet,/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/amc.parquet,/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/math.parquet] \
-    data.train_batch_size=4 \
-    actor_rollout_ref.rollout.val_kwargs.n=4 \
+    data.train_batch_size=512 \
     data.val_batch_size=512 \
     data.max_prompt_length=1024 \
-    data.max_response_length=4096 \
+    data.max_response_length=8192 \
     data.return_raw_chat=True \
     data.truncation=right \
     +data.use_online_transform=False \
@@ -41,7 +40,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.optim.lr=1e-6 \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.rollout.enable_chunked_prefill=False \
-    actor_rollout_ref.actor.ppo_mini_batch_size=4 \
+    actor_rollout_ref.actor.ppo_mini_batch_size=32 \
     actor_rollout_ref.actor.use_dynamic_bsz=True \
     actor_rollout_ref.actor.ppo_max_token_len_per_gpu=32768  \
     actor_rollout_ref.actor.policy_loss.loss_mode=multiplex_thinking \
@@ -49,7 +48,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.kl_loss_coef=0.0 \
     actor_rollout_ref.actor.kl_loss_type=low_var_kl \
     actor_rollout_ref.actor.ulysses_sequence_parallel_size=1 \
-    actor_rollout_ref.model.enable_gradient_checkpointing=True \
+    actor_rollout_ref.model.enable_gradient_checkpointing=False \
     actor_rollout_ref.actor.fsdp_config.model_dtype=bfloat16 \
     actor_rollout_ref.actor.fsdp_config.param_offload=False \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
@@ -92,7 +91,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.val_kwargs.top_p=1.0 \
     actor_rollout_ref.actor.entropy_coeff=0.0 \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.95 \
-    actor_rollout_ref.rollout.n=2 \
+    actor_rollout_ref.rollout.n=8 \
     actor_rollout_ref.ref.strategy=fsdp2 \
     actor_rollout_ref.actor.strategy=fsdp2 \
     critic.strategy=fsdp2 \
@@ -107,7 +106,7 @@ python3 -m verl.trainer.main_ppo \
     trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
     trainer.save_freq=200 \
-    trainer.test_freq=40 \
+    trainer.test_freq=20 \
     trainer.default_hdfs_dir=null \
     trainer.total_epochs=1 \
     trainer.resume_mode="auto" \
