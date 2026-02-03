@@ -353,12 +353,13 @@ echo $OMPI_COMM_WORLD_RANK
 RANDOM_INT=$((RANDOM % 100000 + 1))
 echo "Random integer: $RANDOM_INT"
 EXP_NAME="${EXP_NAME}-${RANDOM_INT}"
+# data.val_files=deepscaler/hdfs_data/$VAL_DATASET.parquet \
 
 # export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:False
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
     data.train_files=deepscaler/hdfs_data/train.parquet \
-    data.val_files=deepscaler/hdfs_data/$VAL_DATASET.parquet \
+    data.val_files=[/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/aime.parquet,/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/amc.parquet,/home/aiscuser/SofT-GRPO-master/Soft-Thinking+noise+loss-main/datasets/math.parquet] \
     data.train_batch_size=32 \
     actor_rollout_ref.rollout.val_kwargs.n=$VAL_ROLLOUT_N \
     data.val_batch_size=$VAL_BATCH_SIZE \
@@ -449,7 +450,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.free_cache_engine=True \
     actor_rollout_ref.rollout.enable_sleep_hack=True \
     actor_rollout_ref.rollout.enable_prefix_caching=False \
-    actor_rollout_ref.rollout.max_num_seqs=4096 \
+    actor_rollout_ref.rollout.max_num_seqs=512 \
     reward_model.enable=False \
     trainer.default_local_dir=./${WANDB_PROJECT}/${EXP_NAME}
 
